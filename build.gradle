@@ -21,7 +21,7 @@ test {
 }
 
 // apply deploy script if file exists
-def deployScriptFileName = "deploy-to-codethink-maven.gradle"
+def deployScriptFileName = "./deploy-to-codethink-maven.gradle"
 if (new File(deployScriptFileName).isFile()) {
-    apply from: "./" + deployScriptFileName
+    apply from: deployScriptFileName
 }

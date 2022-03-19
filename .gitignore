@@ -116,4 +116,4 @@ gradle-app.setting
 ### chuanwise's gradle setting
 
 # deploy script
-/deplot-to-codethink-maven.gradle
+/deploy-to-codethink-maven.gradle
