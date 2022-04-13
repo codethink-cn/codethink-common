@@ -1,4 +1,4 @@
-package cn.codethink.util;
+package cn.codethink.common.util;
 
 import java.util.Objects;
 import java.util.regex.Pattern;

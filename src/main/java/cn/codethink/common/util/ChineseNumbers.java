@@ -1,4 +1,4 @@
-package cn.codethink.util;
+package cn.codethink.common.util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
