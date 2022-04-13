@@ -1,4 +1,4 @@
-package cn.codethink.common.util;
+package cn.codethink.util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,7 +12,9 @@ import java.util.regex.Pattern;
  *
  * @author ThymeChen
  */
-public class ChineseNumbers {
+@SuppressWarnings("all")
+public class ChineseNumbers
+        extends StaticUtilities {
     private static BigDecimal decimal = new BigDecimal("0");
 
     // 单位，10000的n次方
@@ -53,6 +55,7 @@ public class ChineseNumbers {
         try {
             return Integer.parseInt(number);
         } catch (NumberFormatException ignored) {
+
         }
 
         String[] strings = number.split("");
@@ -104,40 +107,45 @@ public class ChineseNumbers {
                 case "伍":
                 case "五":
                 case "5": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 5;
+                    }
                     perNum = 5;
                     break;
                 }
                 case "陆":
                 case "六":
                 case "6": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 6;
+                    }
                     perNum = 6;
                     break;
                 }
                 case "柒":
                 case "七":
                 case "7": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 7;
+                    }
                     perNum = 7;
                     break;
                 }
                 case "捌":
                 case "八":
                 case "8": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 8;
+                    }
                     perNum = 8;
                     break;
                 }
                 case "玖":
                 case "九":
                 case "9": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 9;
+                    }
                     perNum = 9;
                     break;
                 }
@@ -160,15 +168,17 @@ public class ChineseNumbers {
                     int in = originNumber.indexOf(str);
                     String s;
                     if (in == 0) {
-                        if (originNumber.length() == 1)
+                        if (originNumber.length() == 1) {
                             s = originNumber.replaceFirst(str, ">" + str + "<");
-                        else
+                        } else {
                             s = originNumber.replaceFirst(str, ">" + str + "< ");
+                        }
                     } else {
-                        if (in < originNumber.length())
+                        if (in < originNumber.length()) {
                             s = originNumber.replaceFirst(str, " >" + str + "< ");
-                        else
+                        } else {
                             s = originNumber.replaceFirst(str, " >" + str + "<");
+                        }
                     }
 
                     throw new IllegalArgumentException("Illegal argument near index " + (in + 1) + " : \n" + s);
@@ -203,38 +213,43 @@ public class ChineseNumbers {
                         break;
                     }
                     case "亿": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(BILLION);
-                        else
+                        } else {
                             num = num.add(BILLION.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "兆": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(TRILLION);
-                        else
+                        } else {
                             num = num.add(TRILLION.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "京": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(JING);
-                        else
+                        } else {
                             num = num.add(JING.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "垓": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(GAI);
-                        else
+                        } else {
                             num = num.add(GAI.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "秭": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(ZI);
-                        else
+                        } else {
                             num = num.add(ZI.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "穰": {
@@ -245,85 +260,97 @@ public class ChineseNumbers {
                         break;
                     }
                     case "沟": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(GOU);
-                        else
+                        } else {
                             num = num.add(GOU.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "涧": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(JIAN);
-                        else
+                        } else {
                             num = num.add(JIAN.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "正": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(ZHENG);
-                        else
+                        } else {
                             num = num.add(ZHENG.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "载": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(ZAI);
-                        else
+                        } else {
                             num = num.add(ZAI.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "极": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(JI);
-                        else
+                        } else {
                             num = num.add(JI.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "恒河沙": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(HENGHESHA);
-                        else
+                        } else {
                             num = num.add(HENGHESHA.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "阿僧祗": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(ASENGQI);
-                        else
+                        } else {
                             num = num.add(ASENGQI.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "那由他": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(NAYOUTA);
-                        else
+                        } else {
                             num = num.add(NAYOUTA.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "不可思议": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(BUKESIYI);
-                        else
+                        } else {
                             num = num.add(BUKESIYI.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "无量": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(WULIANG);
-                        else
+                        } else {
                             num = num.add(WULIANG.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                     case "大数": {
-                        if (Strings.isBlank(str))
+                        if (Strings.isBlank(str)) {
                             num = num.multiply(DASHU);
-                        else
+                        } else {
                             num = num.add(DASHU.multiply(BigDecimal.valueOf(parseThousand(str, number))));
+                        }
                         break;
                     }
                 }
-            } else
+            } else {
                 num = num.add(BigDecimal.valueOf(parseThousand(str, number)));
+            }
 
             index += 1;
         }
@@ -340,10 +367,11 @@ public class ChineseNumbers {
      */
     public static int ChineseToInt(String number, int defaultValue) {
         ChineseToNumber(number);
-        if (decimal.compareTo(BigDecimal.valueOf(0)) < 0)
+        if (decimal.compareTo(BigDecimal.valueOf(0)) < 0) {
             return decimal.compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) < 0 ? defaultValue : decimal.intValue();
-        else
+        } else {
             return decimal.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0 ? defaultValue : decimal.intValue();
+        }
     }
 
     /**
@@ -356,10 +384,11 @@ public class ChineseNumbers {
      */
     public static long ChineseToLong(String number, long defaultValue) {
         ChineseToNumber(number);
-        if (decimal.compareTo(BigDecimal.valueOf(0)) < 0)
+        if (decimal.compareTo(BigDecimal.valueOf(0)) < 0) {
             return decimal.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) < 0 ? defaultValue : decimal.longValue();
-        else
+        } else {
             return decimal.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0 ? defaultValue : decimal.longValue();
+        }
     }
 
     /**
@@ -385,12 +414,12 @@ public class ChineseNumbers {
         while (matcher.find()) {
             unit.add(matcher.group());
         }
-        String[] var1 = number.split(UNIT.pattern());   // 切割出来的千位
+        String[] units = number.split(UNIT.pattern());   // 切割出来的千位
 
         if (number.length() > 2 && unit.size() > 1) {
             if (unit.get(unit.size() - 1).matches(UNIT.pattern())
                     && unit.get(unit.size() - 2).matches(UNIT.pattern())) {
-                decimal = parseUnit(number, var1, unit);
+                decimal = parseUnit(number, units, unit);
 
                 // 多单位处理
                 ListIterator<String> iterator = unit.listIterator();
@@ -398,7 +427,7 @@ public class ChineseNumbers {
                 // 逆序遍历
                 while (iterator.hasNext())
                     iterator.next();
-                while (iterator.hasPrevious() && i <= unit.size() - var1.length) {
+                while (iterator.hasPrevious() && i <= unit.size() - units.length) {
                     switch (iterator.previous()) {
                         case "万":
                         case "萬":
@@ -459,10 +488,10 @@ public class ChineseNumbers {
                     i += 1;
                 }
             } else {
-                decimal = parseUnit(number, var1, unit);
+                decimal = parseUnit(number, units, unit);
             }
         } else {
-            decimal = parseUnit(number, var1, unit);
+            decimal = parseUnit(number, units, unit);
         }
 
         long unitCount = unit.stream().filter(s -> s.equals("负")).count();
