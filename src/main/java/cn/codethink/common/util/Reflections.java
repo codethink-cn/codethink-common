@@ -1,6 +1,9 @@
 package cn.codethink.common.util;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -8,36 +11,60 @@ import java.util.*;
  *
  * @author Chuanwise
  */
-public class Reflections
-        extends StaticUtilities {
+public class Reflections {
+    
+    private Reflections() {
+        Exceptions.throwUtilClassInitializeException(Reflections.class);
+    }
+    
+    /**
+     * 检测一种类型的主体能否用于调用某个方法
+     *
+     * @param subjectClass 主体类型
+     * @param method       方法
+     * @return 能否调用 method.invoke(subject, arguments...)
+     * @throws NullPointerException subjectClass 为 null
+     * @throws NullPointerException method 为 null
+     */
+    public static boolean canInvoke(Class<?> subjectClass, Method method) {
+        Preconditions.objectNonNull(subjectClass, "subject class");
+        Preconditions.objectNonNull(method, "method");
+    
+        final Class<?> declaringClass = method.getDeclaringClass();
+        if (Modifiers.isStatic(method)) {
+            return declaringClass == subjectClass;
+        } else {
+            return declaringClass.isAssignableFrom(subjectClass);
+        }
+    }
     
     /**
      * 反射调用方法
      *
-     * @param source    方法调用者
+     * @param subject   方法调用者
      * @param method    方法
      * @param arguments 参数
      * @return 方法返回值
      * @throws InvocationTargetException 执行方法时出现异常
      */
-    public static Object invokeMethod(Object source, Method method, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonNull(method, "method");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
+    public static Object invokeMethod(Object subject, Method method, Object... arguments) throws InvocationTargetException {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonNull(method, "method");
+        Preconditions.objectNonNull(arguments, "arguments");
         
-        // 检查 static 或 source
+        // 检查 static 或 subject
         final int modifiers = method.getModifiers();
         final Class<?> methodClass = method.getDeclaringClass();
-        Preconditions.argument((Modifier.isStatic(modifiers) || Objects.equals(source, methodClass))
-                || methodClass.isInstance(source),
-            "method should be static and source object equals to the declaring class of method, " +
-                "or the source object must be a instance of the declaring class of method.");
-    
+        Preconditions.argument((Modifier.isStatic(modifiers) || Objects.equals(subject, methodClass))
+                || methodClass.isInstance(subject),
+            "method should be static and subject object equals to the declaring class of method, " +
+                "or the subject object must be a instance of the declaring class of method.");
+        
         final boolean accessible = method.isAccessible();
         
         try {
             method.setAccessible(true);
-            return method.invoke(source, arguments);
+            return method.invoke(subject, arguments);
         } catch (IllegalAccessException exception) {
             throw new IllegalStateException("can not set method accessible", exception);
         } finally {
@@ -54,104 +81,104 @@ public class Reflections
      * @throws InvocationTargetException 执行方法时出现异常
      */
     public static Object invokeStaticMethod(Method method, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(method, "method");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
-        Preconditions.namedArgument(Modifiers.isStatic(method), "method is not static");
-    
+        Preconditions.objectNonNull(method, "method");
+        Preconditions.objectNonNull(arguments, "arguments");
+        Preconditions.argument(Modifiers.isStatic(method), "method is not static");
+        
         return invokeMethod(method.getDeclaringClass(), method, arguments);
     }
     
     /**
      * 反射调用可访问的，参数非空的方法
      *
-     * @param source     对象
+     * @param subject    对象
      * @param methodName 方法名
      * @param arguments  参数列表
      * @return 当找到该方法时，返回方法返回的值，否则返回 null
      * @throws InvocationTargetException 执行方法时出现异常
      */
-    public static Object invokeAccessibleArgumentNonNullMethod(Object source, String methodName, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
+    public static Object invokeAccessibleArgumentNonNullMethod(Object subject, String methodName, Object... arguments) throws InvocationTargetException {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(arguments, "arguments");
         
         // 收集参数类型
         final Class<?>[] parameterClasses = new Class<?>[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
             final Object argument = arguments[i];
-            Preconditions.namedArgumentNonNull(argument, "argument " + i);
+            Preconditions.objectNonNull(argument, "argument " + i);
             parameterClasses[i] = argument.getClass();
         }
         
         // 查找方法
-        final Method method = getAccessibleMethod(source.getClass(), methodName, parameterClasses);
+        final Method method = getAccessibleMethod(subject.getClass(), methodName, parameterClasses);
         if (Objects.isNull(method)) {
             return null;
         }
-    
-        return invokeMethod(source, method, arguments);
+        
+        return invokeMethod(subject, method, arguments);
     }
     
     /**
      * 反射调用存在的，参数非空的方法
      *
-     * @param source     对象
+     * @param subject    对象
      * @param methodName 方法名
      * @param arguments  参数列表
      * @return 当找到该方法时，返回方法返回的值，否则返回 null
      * @throws InvocationTargetException 执行方法时出现异常
      */
-    public static Object invokeExistArgumentNonNullMethod(Object source, String methodName, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
+    public static Object invokeExistArgumentNonNullMethod(Object subject, String methodName, Object... arguments) throws InvocationTargetException {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(arguments, "arguments");
         
         // 收集参数类型
         final Class<?>[] parameterClasses = new Class<?>[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
             final Object argument = arguments[i];
-            Preconditions.namedArgumentNonNull(argument, "argument " + i);
+            Preconditions.objectNonNull(argument, "argument " + i);
             parameterClasses[i] = argument.getClass();
         }
         
         // 查找方法
-        final Method method = getExistMethod(source.getClass(), methodName, parameterClasses);
+        final Method method = getExistMethod(subject.getClass(), methodName, parameterClasses);
         if (Objects.isNull(method)) {
             return null;
         }
-    
-        return invokeMethod(source, method, arguments);
+        
+        return invokeMethod(subject, method, arguments);
     }
     
     /**
      * 反射调用定义的，参数非空的方法
      *
-     * @param source     对象
+     * @param subject    对象
      * @param methodName 方法名
      * @param arguments  参数列表
      * @return 当找到该方法时，返回方法返回的值，否则返回 null
      * @throws InvocationTargetException 执行方法时出现异常
      */
-    public static Object invokeDeclaredArgumentNonNullMethod(Object source, String methodName, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
+    public static Object invokeDeclaredArgumentNonNullMethod(Object subject, String methodName, Object... arguments) throws InvocationTargetException {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(arguments, "arguments");
         
         // 收集参数类型
         final Class<?>[] parameterClasses = new Class<?>[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
             final Object argument = arguments[i];
-            Preconditions.namedArgumentNonNull(argument, "argument " + i);
+            Preconditions.objectNonNull(argument, "argument " + i);
             parameterClasses[i] = argument.getClass();
         }
         
         // 查找方法
-        final Method method = getDeclaredMethod(source.getClass(), methodName, parameterClasses);
+        final Method method = getDeclaredMethod(subject.getClass(), methodName, parameterClasses);
         if (Objects.isNull(method)) {
             return null;
         }
-    
-        return invokeMethod(source, method, arguments);
+        
+        return invokeMethod(subject, method, arguments);
     }
     
     /**
@@ -164,15 +191,15 @@ public class Reflections
      * @throws InvocationTargetException 执行方法时出现异常
      */
     public static Object invokeAccessibleArgumentNonNullStaticMethod(Class<?> clazz, String methodName, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(clazz, "clazz");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
+        Preconditions.objectNonNull(clazz, "clazz");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(arguments, "arguments");
         
         // 收集参数类型
         final Class<?>[] parameterClasses = new Class<?>[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
             final Object argument = arguments[i];
-            Preconditions.namedArgumentNonNull(argument, "argument " + i);
+            Preconditions.objectNonNull(argument, "argument " + i);
             parameterClasses[i] = argument.getClass();
         }
         
@@ -181,7 +208,7 @@ public class Reflections
         if (Objects.isNull(method)) {
             return null;
         }
-    
+        
         return invokeStaticMethod(method, arguments);
     }
     
@@ -195,15 +222,15 @@ public class Reflections
      * @throws InvocationTargetException 执行方法时出现异常
      */
     public static Object invokeExistArgumentNonNullStaticMethod(Class<?> clazz, String methodName, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(clazz, "clazz");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
+        Preconditions.objectNonNull(clazz, "clazz");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(arguments, "arguments");
         
         // 收集参数类型
         final Class<?>[] parameterClasses = new Class<?>[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
             final Object argument = arguments[i];
-            Preconditions.namedArgumentNonNull(argument, "argument " + i);
+            Preconditions.objectNonNull(argument, "argument " + i);
             parameterClasses[i] = argument.getClass();
         }
         
@@ -212,7 +239,7 @@ public class Reflections
         if (Objects.isNull(method)) {
             return null;
         }
-    
+        
         return invokeStaticMethod(method, arguments);
     }
     
@@ -226,15 +253,15 @@ public class Reflections
      * @throws InvocationTargetException 执行方法时出现异常
      */
     public static Object invokeDeclaredArgumentNonNullStaticMethod(Class<?> clazz, String methodName, Object... arguments) throws InvocationTargetException {
-        Preconditions.namedArgumentNonNull(clazz, "clazz");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(arguments, "arguments");
+        Preconditions.objectNonNull(clazz, "clazz");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(arguments, "arguments");
         
         // 收集参数类型
         final Class<?>[] parameterClasses = new Class<?>[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
             final Object argument = arguments[i];
-            Preconditions.namedArgumentNonNull(argument, "argument " + i);
+            Preconditions.objectNonNull(argument, "argument " + i);
             parameterClasses[i] = argument.getClass();
         }
         
@@ -243,7 +270,7 @@ public class Reflections
         if (Objects.isNull(method)) {
             return null;
         }
-    
+        
         return invokeStaticMethod(method, arguments);
     }
     
@@ -255,9 +282,9 @@ public class Reflections
      * @return 当找不到该属性时返回 null
      */
     public static Field getAccessibleField(Class<?> clazz, String fieldName) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(fieldName, "field name");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(fieldName, "field name");
+        
         try {
             return clazz.getField(fieldName);
         } catch (NoSuchFieldException e) {
@@ -273,9 +300,9 @@ public class Reflections
      * @return 当找不到该属性时返回 null
      */
     public static Field getExistField(Class<?> clazz, String fieldName) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(fieldName, "field name");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(fieldName, "field name");
+        
         do {
             try {
                 return clazz.getDeclaredField(fieldName);
@@ -295,11 +322,11 @@ public class Reflections
      * @return 类型的所有属性
      */
     public static Field[] getExistFields(Class<?> clazz) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        
         final List<Field> fields = new ArrayList<>();
         while (Objects.nonNull(clazz)) {
-            fields.addAll(Arrays.asUnmodifiableList(clazz.getDeclaredFields()));
+            fields.addAll(Arrays.unmodifiableList(clazz.getDeclaredFields()));
             clazz = clazz.getSuperclass();
         }
         return fields.toArray(new Field[0]);
@@ -313,9 +340,9 @@ public class Reflections
      * @return 当找不到该属性时返回 null
      */
     public static Field getDeclaredField(Class<?> clazz, String fieldName) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(fieldName, "field name");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(fieldName, "field name");
+        
         try {
             return clazz.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
@@ -352,7 +379,7 @@ public class Reflections
         if (Objects.isNull(field)) {
             return null;
         }
-    
+        
         Preconditions.argument(Modifiers.isStatic(field), "field is not static");
         return field;
     }
@@ -369,7 +396,7 @@ public class Reflections
         if (Objects.isNull(field)) {
             return null;
         }
-    
+        
         Preconditions.argument(Modifiers.isStatic(field), "field is not static");
         return field;
     }
@@ -403,7 +430,7 @@ public class Reflections
         if (Objects.isNull(field)) {
             return null;
         }
-    
+        
         Preconditions.argument(!Modifiers.isStatic(field), "field is static");
         return field;
     }
@@ -420,7 +447,7 @@ public class Reflections
         if (Objects.isNull(field)) {
             return null;
         }
-    
+        
         Preconditions.argument(!Modifiers.isStatic(field), "field is static");
         return field;
     }
@@ -428,26 +455,26 @@ public class Reflections
     /**
      * 获取属性值
      *
-     * @param source 对象
-     * @param field  属性
+     * @param subject 对象
+     * @param field   属性
      * @return 当找不到该属性时返回 null
      */
-    public static Object getFieldValue(Object source, Field field) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonNull(field, "field");
+    public static Object getFieldValue(Object subject, Field field) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonNull(field, "field");
         
-        // 检查 static 或 source
+        // 检查 static 或 subject
         final Class<?> fieldClass = field.getDeclaringClass();
-        Preconditions.argument((Modifiers.isStatic(field) || Objects.equals(source, fieldClass))
-                || fieldClass.isInstance(source),
-            "field should be static and source object equals to the declaring class of field, " +
-                "or the source object must be a instance of the declaring class of field.");
-    
+        Preconditions.argument((Modifiers.isStatic(field) || Objects.equals(subject, fieldClass))
+                || fieldClass.isInstance(subject),
+            "field should be static and subject object equals to the declaring class of field, " +
+                "or the subject object must be a instance of the declaring class of field.");
+        
         final boolean accessible = field.isAccessible();
         
         try {
             field.setAccessible(true);
-            return field.get(source);
+            return field.get(subject);
         } catch (IllegalAccessException exception) {
             throw new IllegalStateException("can not set field accessible", exception);
         } finally {
@@ -462,7 +489,7 @@ public class Reflections
      * @return 当找不到该属性时返回 null
      */
     public static Object getStaticFieldValue(Field field) {
-        Preconditions.namedArgumentNonNull(field, "field");
+        Preconditions.objectNonNull(field, "field");
         Preconditions.argument(Modifiers.isStatic(field), "field is not static");
         
         return getFieldValue(field.getDeclaringClass(), field);
@@ -475,7 +502,7 @@ public class Reflections
      * @return 当找不到该属性时返回 null
      */
     public static Object getNonStaticFieldValue(Field field) {
-        Preconditions.namedArgumentNonNull(field, "field");
+        Preconditions.objectNonNull(field, "field");
         Preconditions.argument(!Modifiers.isStatic(field), "field is static");
         
         return getFieldValue(field.getDeclaringClass(), field);
@@ -484,32 +511,32 @@ public class Reflections
     /**
      * 设置属性值
      *
-     * @param source 对象
-     * @param field  属性
-     * @param value  属性值
+     * @param subject 对象
+     * @param field   属性
+     * @param value   属性值
      */
-    public static void setFieldValue(Object source, Field field, Object value) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonNull(field, "field");
-    
-        // 检查 static 或 source
+    public static void setFieldValue(Object subject, Field field, Object value) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonNull(field, "field");
+        
+        // 检查 static 或 subject
         final Class<?> fieldClass = field.getDeclaringClass();
-        Preconditions.argument((Modifiers.isStatic(field) || Objects.equals(source, fieldClass))
-                || fieldClass.isInstance(source),
-            "field should be static and source object equals to the declaring class of field, " +
-                "or the source object must be a instance of the declaring class of field.");
+        Preconditions.argument((Modifiers.isStatic(field) || Objects.equals(subject, fieldClass))
+                || fieldClass.isInstance(subject),
+            "field should be static and subject object equals to the declaring class of field, " +
+                "or the subject object must be a instance of the declaring class of field.");
         
         // 检查 value 类型
         if (Objects.nonNull(value)) {
             final Class<?> type = field.getType();
             Preconditions.argument(type.isInstance(value), "value is not null, and not the instance of field type");
         }
-    
+        
         final boolean accessible = field.isAccessible();
-    
+        
         try {
             field.setAccessible(true);
-            field.set(source, value);
+            field.set(subject, value);
         } catch (IllegalAccessException exception) {
             throw new IllegalStateException("can not set field accessible", exception);
         } finally {
@@ -524,55 +551,43 @@ public class Reflections
      * @param value 属性值
      */
     public static void setStaticFieldValue(Field field, Object value) {
-        Preconditions.namedArgumentNonNull(field, "field");
+        Preconditions.objectNonNull(field, "field");
         
         setFieldValue(field.getDeclaringClass(), field, value);
     }
     
     /**
-     * 设置非静态属性值
-     *
-     * @param field 属性
-     * @param value 属性值
-     */
-    public static void setNonStaticFieldValue(Field field, Object value) {
-        Preconditions.namedArgumentNonNull(field, "field");
-        
-        setNonStaticFieldValue(field, value);
-    }
-    
-    /**
      * 获取可访问的属性值
      *
-     * @param source    对象
+     * @param subject   对象
      * @param fieldName 属性名
      * @return 当找不到该属性时返回 null
      */
-    public static Object getAccessibleFieldValue(Object source, String fieldName) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(fieldName, "field name");
-    
-        final Field field = getAccessibleField(source.getClass(), fieldName);
+    public static Object getAccessibleFieldValue(Object subject, String fieldName) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(fieldName, "field name");
+        
+        final Field field = getAccessibleField(subject.getClass(), fieldName);
         if (Objects.isNull(field)) {
             return null;
         }
-    
-        return getFieldValue(source, field);
+        
+        return getFieldValue(subject, field);
     }
     
     /**
      * 设置可访问的属性值
      *
-     * @param source    对象
+     * @param subject   对象
      * @param fieldName 属性名
      * @param value     属性值
      * @return 当找不到该属性时返回 false
      */
-    public static boolean setAccessibleFieldValue(Object source, String fieldName, Object value) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(fieldName, "fieldName");
-    
-        final Field field = getAccessibleField(source.getClass(), fieldName);
+    public static boolean setAccessibleFieldValue(Object subject, String fieldName, Object value) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(fieldName, "fieldName");
+        
+        final Field field = getAccessibleField(subject.getClass(), fieldName);
         if (Objects.isNull(field)) {
             return false;
         }
@@ -584,35 +599,35 @@ public class Reflections
     /**
      * 获取存在的属性值
      *
-     * @param source    对象
+     * @param subject   对象
      * @param fieldName 属性名
      * @return 当找不到该属性时返回 null
      */
-    public static Object getExistFieldValue(Object source, String fieldName) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(fieldName, "field name");
-    
-        final Field field = getExistField(source.getClass(), fieldName);
+    public static Object getExistFieldValue(Object subject, String fieldName) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(fieldName, "field name");
+        
+        final Field field = getExistField(subject.getClass(), fieldName);
         if (Objects.isNull(field)) {
             return null;
         }
-    
-        return getFieldValue(source, field);
+        
+        return getFieldValue(subject, field);
     }
     
     /**
      * 设置存在的属性值
      *
-     * @param source    对象
+     * @param subject   对象
      * @param fieldName 属性名
      * @param value     属性值
      * @return 当找不到该属性时返回 false
      */
-    public static boolean setExistFieldValue(Object source, String fieldName, Object value) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(fieldName, "fieldName");
-    
-        final Field field = getExistField(source.getClass(), fieldName);
+    public static boolean setExistFieldValue(Object subject, String fieldName, Object value) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(fieldName, "fieldName");
+        
+        final Field field = getExistField(subject.getClass(), fieldName);
         if (Objects.isNull(field)) {
             return false;
         }
@@ -624,35 +639,35 @@ public class Reflections
     /**
      * 获取定义的属性值
      *
-     * @param source    对象
+     * @param subject   对象
      * @param fieldName 属性名
      * @return 当找不到该属性时返回 null
      */
-    public static Object getDeclaredFieldValue(Object source, String fieldName) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(fieldName, "field name");
-    
-        final Field field = getDeclaredField(source.getClass(), fieldName);
+    public static Object getDeclaredFieldValue(Object subject, String fieldName) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(fieldName, "field name");
+        
+        final Field field = getDeclaredField(subject.getClass(), fieldName);
         if (Objects.isNull(field)) {
             return null;
         }
-    
-        return getFieldValue(source, field);
+        
+        return getFieldValue(subject, field);
     }
     
     /**
      * 设置定义的属性值
      *
-     * @param source    对象
+     * @param subject   对象
      * @param fieldName 属性名
      * @param value     属性值
      * @return 当找不到该属性时返回 false
      */
-    public static boolean setDeclaredFieldValue(Object source, String fieldName, Object value) {
-        Preconditions.namedArgumentNonNull(source, "source");
-        Preconditions.namedArgumentNonEmpty(fieldName, "fieldName");
-    
-        final Field field = getDeclaredField(source.getClass(), fieldName);
+    public static boolean setDeclaredFieldValue(Object subject, String fieldName, Object value) {
+        Preconditions.objectNonNull(subject, "subject");
+        Preconditions.objectNonEmpty(fieldName, "fieldName");
+        
+        final Field field = getDeclaredField(subject.getClass(), fieldName);
         if (Objects.isNull(field)) {
             return false;
         }
@@ -670,10 +685,10 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getAccessibleMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
+        
         try {
             return clazz.getMethod(methodName, parameterClasses);
         } catch (NoSuchMethodException e) {
@@ -690,29 +705,29 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getExistMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
+        
         final Set<Class<?>> checkedClasses = new HashSet<>();
         final Queue<Class<?>> classes = new LinkedList<>();
         classes.add(clazz);
         
         while (!classes.isEmpty()) {
             final Class<?> currentClass = classes.poll();
-    
+            
             try {
                 return currentClass.getMethod(methodName, parameterClasses);
             } catch (NoSuchMethodException ignored) {
             }
-    
+            
             // 在父类中寻找
             final Class<?> superclass = currentClass.getSuperclass();
             if (Objects.nonNull(superclass)) {
                 checkedClasses.add(superclass);
                 classes.add(superclass);
             }
-    
+            
             // 在父类的接口中寻找
             for (Class<?> superInterface : currentClass.getInterfaces()) {
                 if (!checkedClasses.contains(superInterface)) {
@@ -734,9 +749,9 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getDeclaredMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
         
         try {
             return clazz.getDeclaredMethod(methodName, parameterClasses);
@@ -754,10 +769,10 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getAccessibleStaticMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
+        
         final Method method = getAccessibleMethod(clazz, methodName, parameterClasses);
         if (Objects.isNull(method)) {
             return null;
@@ -776,15 +791,15 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getExistStaticMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
+        
         final Method method = getExistMethod(clazz, methodName, parameterClasses);
         if (Objects.isNull(method)) {
             return null;
         }
-    
+        
         Preconditions.argument(Modifiers.isStatic(method), "method is not static");
         return method;
     }
@@ -798,15 +813,15 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getDeclaredStaticMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
-    
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
+        
         final Method method = getDeclaredMethod(clazz, methodName, parameterClasses);
         if (Objects.isNull(method)) {
             return null;
         }
-    
+        
         Preconditions.argument(Modifiers.isStatic(method), "method is not static");
         return method;
     }
@@ -820,9 +835,9 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getAccessibleNonStaticMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
         
         final Method method = getAccessibleMethod(clazz, methodName, parameterClasses);
         if (Objects.isNull(method)) {
@@ -842,9 +857,9 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getExistNonStaticMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
         
         final Method method = getExistMethod(clazz, methodName, parameterClasses);
         if (Objects.isNull(method)) {
@@ -864,9 +879,9 @@ public class Reflections
      * @return 当找不到该方法是返回 null
      */
     public static Method getDeclaredNonStaticMethod(Class<?> clazz, String methodName, Class<?>... parameterClasses) {
-        Preconditions.namedArgumentNonNull(clazz, "class");
-        Preconditions.namedArgumentNonEmpty(methodName, "method name");
-        Preconditions.namedArgumentNonNull(parameterClasses, "parameter classes");
+        Preconditions.objectNonNull(clazz, "class");
+        Preconditions.objectNonEmpty(methodName, "method name");
+        Preconditions.objectNonNull(parameterClasses, "parameter classes");
         
         final Method method = getDeclaredMethod(clazz, methodName, parameterClasses);
         if (Objects.isNull(method)) {

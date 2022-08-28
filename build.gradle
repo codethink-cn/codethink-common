@@ -1,19 +1,20 @@
 plugins {
-    id "java"
+    id 'java'
+    id 'java-library'
 }
 
-group "cn.codethink"
-version "1.0-SNAPSHOT"
+group 'cn.codethink'
+version '1.0-SNAPSHOT'
 
 repositories {
+    mavenLocal()
+
     mavenCentral()
 }
 
 dependencies {
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
-
-    compileOnly "org.projectlombok:lombok:1.18.22"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
 
 test {
@@ -21,7 +22,7 @@ test {
 }
 
 // apply deploy script if file exists
-def deployScriptFileName = "./deploy-to-codethink-maven.gradle"
-if (new File(deployScriptFileName).isFile()) {
-    apply from: deployScriptFileName
+def publishScriptFile = new File('publish.gradle')
+if (publishScriptFile.isFile()) {
+    apply from: publishScriptFile.getAbsolutePath()
 }

@@ -1,6 +1,9 @@
 package cn.codethink.common.util;
 
 import java.math.BigDecimal;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -12,27 +15,50 @@ import java.util.regex.Pattern;
  *
  * @author ThymeChen
  */
+@SuppressWarnings("all")
 public class ChineseNumbers {
+    
+    private ChineseNumbers() {
+        Exceptions.throwUtilClassInitializeException(ChineseNumbers.class);
+    }
+    
     private static BigDecimal decimal = new BigDecimal("0");
 
     // 单位，10000的n次方
     private static final BigDecimal MILLION     = new BigDecimal("10000");      // 万
+    
     private static final BigDecimal BILLION     = MILLION.multiply(MILLION);        // 亿
+    
     private static final BigDecimal TRILLION    = BILLION.multiply(MILLION);        // 兆
+    
     private static final BigDecimal JING        = TRILLION.multiply(MILLION);       // 京
+    
     private static final BigDecimal GAI         = JING.multiply(MILLION);           // 垓
+    
     private static final BigDecimal ZI          = GAI.multiply(MILLION);            // 秭
+    
     private static final BigDecimal RANG        = ZI.multiply(MILLION);             // 穰
+    
     private static final BigDecimal GOU         = RANG.multiply(MILLION);           // 沟
+    
     private static final BigDecimal JIAN        = GOU.multiply(MILLION);            // 涧
+    
     private static final BigDecimal ZHENG       = JIAN.multiply(MILLION);           // 正
+    
     private static final BigDecimal ZAI         = ZHENG.multiply(MILLION);          // 载
+    
     private static final BigDecimal JI          = ZAI.multiply(MILLION);            // 极
+    
     private static final BigDecimal HENGHESHA   = JI.multiply(MILLION);             // 恒河沙
+    
     private static final BigDecimal ASENGQI     = HENGHESHA.multiply(MILLION);      // 阿僧祗
+    
     private static final BigDecimal NAYOUTA     = ASENGQI.multiply(MILLION);        // 那由他
+    
     private static final BigDecimal BUKESIYI    = NAYOUTA.multiply(MILLION);        // 不可思议
+    
     private static final BigDecimal WULIANG     = BUKESIYI.multiply(MILLION);       // 无量
+    
     private static final BigDecimal DASHU       = WULIANG.multiply(MILLION);        // 大数
 
     private static final Pattern UNIT = Pattern.compile("(负|万|萬|亿|兆|京|垓|秭|穰|沟|涧|正|载|极|恒河沙|阿僧祗|那由他|不可思议|无量|大数)");
@@ -104,32 +130,36 @@ public class ChineseNumbers {
                 case "伍":
                 case "五":
                 case "5": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 5;
+                    }
                     perNum = 5;
                     break;
                 }
                 case "陆":
                 case "六":
                 case "6": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 6;
+                    }
                     perNum = 6;
                     break;
                 }
                 case "柒":
                 case "七":
                 case "7": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 7;
+                    }
                     perNum = 7;
                     break;
                 }
                 case "捌":
                 case "八":
                 case "8": {
-                    if (count == strings.length)
+                    if (count == strings.length) {
                         num += 8;
+                    }
                     perNum = 8;
                     break;
                 }
@@ -338,8 +368,8 @@ public class ChineseNumbers {
      * @return int 成功时返回转换后的数字，越界时返回传入的默认值 defaultValue
      * @throws IllegalArgumentException 返回第一个错误的参数
      */
-    public static int ChineseToInt(String number, int defaultValue) {
-        ChineseToNumber(number);
+    public static int chineseToInt(String number, int defaultValue) {
+        chineseToNumber(number);
         if (decimal.compareTo(BigDecimal.valueOf(0)) < 0)
             return decimal.compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) < 0 ? defaultValue : decimal.intValue();
         else
@@ -354,8 +384,8 @@ public class ChineseNumbers {
      * @return long 成功时返回转换后的数字，越界时返回传入的默认值 defaultValue
      * @throws IllegalArgumentException 返回第一个错误的参数
      */
-    public static long ChineseToLong(String number, long defaultValue) {
-        ChineseToNumber(number);
+    public static long chineseToLong(String number, long defaultValue) {
+        chineseToNumber(number);
         if (decimal.compareTo(BigDecimal.valueOf(0)) < 0)
             return decimal.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) < 0 ? defaultValue : decimal.longValue();
         else
@@ -369,8 +399,8 @@ public class ChineseNumbers {
      * @return BigDecimal 转化后的数字
      * @throws IllegalArgumentException 返回第一个错误的参数
      */
-    public static BigDecimal ChineseToNumber(String number) {
-        Preconditions.namedArgumentNonEmpty(number, "string");
+    public static BigDecimal chineseToNumber(String number) {
+        Preconditions.objectNonNull(number, "string");
 
         decimal = BigDecimal.valueOf(0);
         try {

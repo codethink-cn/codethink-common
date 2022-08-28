@@ -17,7 +17,7 @@ public class JoinerTest {
             .prefix("[")
             .suffix("]")
             .build()
-            .withAll(integers)
+            .plusAll(integers)
             .join();
     
         Assertions.assertEquals("[1, 2, 3]", join);

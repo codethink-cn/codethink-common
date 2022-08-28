@@ -1,8 +1,10 @@
 package cn.codethink.common.util;
 
 import java.util.*;
+import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -10,8 +12,11 @@ import java.util.function.Predicate;
  *
  * @author Chuanwise
  */
-public class Collections
-        extends StaticUtilities {
+public class Collections {
+    
+    private Collections() {
+        Exceptions.throwUtilClassInitializeException(Collections.class);
+    }
     
     /**
      * 判断集合是否为空
@@ -39,13 +44,29 @@ public class Collections
      * @param iterable 迭代器
      * @param <T>      集合元素类型
      * @return 复制后的新列表
+     * @throws NullPointerException iterable 为 null
      */
     public static <T> List<T> asList(Iterable<T> iterable) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
-    
+        Preconditions.objectNonNull(iterable, "iterable");
+        
         final List<T> list = new ArrayList<>();
         iterable.forEach(list::add);
         return list;
+    }
+    
+    /**
+     * 将数组元素复制到列表中
+     *
+     * @param elements 数组
+     * @param <T>      集合元素类型
+     * @return 复制后的新列表
+     * @throws NullPointerException elements 为 null
+     */
+    @SafeVarargs
+    public static <T> List<T> asList(T... elements) {
+        Preconditions.objectNonNull(elements, "elements");
+    
+        return new ArrayList<>(Arrays.asList(elements));
     }
     
     /**
@@ -54,28 +75,29 @@ public class Collections
      * @param iterable 迭代器
      * @param <T>      集合元素类型
      * @return 复制后的新列表
+     * @throws NullPointerException iterable 为 null
      */
     public static <T> List<T> asConcurrentList(Iterable<T> iterable) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
-    
+        Preconditions.objectNonNull(iterable, "iterable");
+        
         final List<T> list = new CopyOnWriteArrayList<>();
         iterable.forEach(list::add);
         return list;
     }
     
     /**
-     * 将迭代器元素复制到列表中
+     * 将数组器元素复制到列表中
      *
-     * @param iterable 迭代器
+     * @param elements 数组
      * @param <T>      集合元素类型
      * @return 复制后的新列表
+     * @throws NullPointerException elements 为 null
      */
-    public static <T> List<T> asUnmodifiableList(Iterable<T> iterable) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
-    
-        final List<T> list = new ArrayList<>();
-        iterable.forEach(list::add);
-        return java.util.Collections.unmodifiableList(list);
+    @SafeVarargs
+    public static <T> List<T> asConcurrentList(T... elements) {
+        Preconditions.objectNonNull(elements, "elements");
+        
+        return new CopyOnWriteArrayList<>(java.util.Arrays.asList(elements));
     }
     
     /**
@@ -84,9 +106,41 @@ public class Collections
      * @param iterable 迭代器
      * @param <T>      集合元素类型
      * @return 复制后的新列表
+     * @throws NullPointerException iterable 为 null
      */
-    public static <T> Set<T> asSet(Iterable<T> iterable) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
+    public static <T> List<T> unmodifiableList(Iterable<T> iterable) {
+        Preconditions.objectNonNull(iterable, "iterable");
+        
+        final List<T> list = new ArrayList<>();
+        iterable.forEach(list::add);
+        return java.util.Collections.unmodifiableList(list);
+    }
+    
+    /**
+     * 将数组元素复制到列表中
+     *
+     * @param elements 数组
+     * @param <T>      集合元素类型
+     * @return 复制后的新列表
+     * @throws NullPointerException elements 为 null
+     */
+    @SafeVarargs
+    public static <T> List<T> unmodifiableList(T... elements) {
+        Preconditions.objectNonNull(elements, "elements");
+        
+        return java.util.Arrays.asList(elements);
+    }
+    
+    /**
+     * 将迭代器元素复制到列表中
+     *
+     * @param iterable 迭代器
+     * @param <T>      集合元素类型
+     * @return 复制后的新列表
+     * @throws NullPointerException iterable 为 null
+     */
+    public static <T> Set<T> modifiableSet(Iterable<T> iterable) {
+        Preconditions.objectNonNull(iterable, "iterable");
         
         final Set<T> set = new HashSet<>();
         iterable.forEach(set::add);
@@ -99,9 +153,10 @@ public class Collections
      * @param iterable 迭代器
      * @param <T>      集合元素类型
      * @return 复制后的新列表
+     * @throws NullPointerException iterable 为 null
      */
-    public static <T> Set<T> asConcurrentSet(Iterable<T> iterable) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
+    public static <T> Set<T> concurrentSet(Iterable<T> iterable) {
+        Preconditions.objectNonNull(iterable, "iterable");
         
         final Set<T> set = new CopyOnWriteArraySet<>();
         iterable.forEach(set::add);
@@ -114,13 +169,28 @@ public class Collections
      * @param iterable 迭代器
      * @param <T>      集合元素类型
      * @return 复制后的新列表
+     * @throws NullPointerException iterable 为 null
      */
-    public static <T> Set<T> asUnmodifiableSet(Iterable<T> iterable) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
+    public static <T> Set<T> unmodifiableSet(Iterable<T> iterable) {
+        Preconditions.objectNonNull(iterable, "iterable");
         
         final Set<T> set = new HashSet<>();
         iterable.forEach(set::add);
         return java.util.Collections.unmodifiableSet(set);
+    }
+    
+    /**
+     * 将迭代器元素复制到列表中
+     *
+     * @param elements 元素
+     * @param <T>      集合元素类型
+     * @return 复制后的新列表
+     * @throws NullPointerException elements 为 null
+     */
+    @SafeVarargs
+    public static <T> Set<T> unmodifiableSet(T... elements) {
+        Preconditions.objectNonNull(elements, "elements");
+        return java.util.Collections.unmodifiableSet(new HashSet<>(Arrays.asList(elements)));
     }
     
     /**
@@ -131,15 +201,16 @@ public class Collections
      * @param beginIndex 起始索引
      * @param <T>        集合元素类型
      * @return 当在起始索引后找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException iterable 为 null
      */
     public static <T> int indexOf(Iterable<T> iterable, T value, int beginIndex) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
+        Preconditions.objectNonNull(iterable, "iterable");
         Preconditions.argument(beginIndex >= 0, "begin index must be bigger than or equals to 0!");
         
         int index = -1;
         for (T t : iterable) {
             index++;
-    
+            
             if (index < beginIndex) {
                 continue;
             }
@@ -149,7 +220,7 @@ public class Collections
             }
         }
         
-        Preconditions.namedIndex(index >= beginIndex, "begin index");
+        Preconditions.objectIndex(index >= beginIndex, "begin index");
         
         return -1;
     }
@@ -161,6 +232,7 @@ public class Collections
      * @param value    目标值
      * @param <T>      集合元素类型
      * @return 当在找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException iterable 为 null
      */
     public static <T> int indexOf(Iterable<T> iterable, T value) {
         return indexOf(iterable, value, 0);
@@ -173,27 +245,29 @@ public class Collections
      * @param filter   筛选器
      * @param <T>      集合元素类型
      * @return 当在起始索引后找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException iterable 为 null
+     * @throws NullPointerException filter 为 null
      */
     public static <T> int indexIf(Iterable<T> iterable, Predicate<T> filter, int beginIndex) {
-        Preconditions.namedArgumentNonNull(iterable, "iterable");
-        Preconditions.namedArgumentNonNull(filter, "filter");
+        Preconditions.objectNonNull(iterable, "iterable");
+        Preconditions.objectNonNull(filter, "filter");
         Preconditions.argument(beginIndex >= 0, "begin index must be bigger than or equals to 0!");
-    
+        
         int index = -1;
         for (T t : iterable) {
             index++;
-    
+            
             if (index < beginIndex) {
                 continue;
             }
-    
+            
             if (filter.test(t)) {
                 return index;
             }
         }
-    
-        Preconditions.namedIndex(index >= beginIndex, "begin index");
-    
+        
+        Preconditions.objectIndex(index >= beginIndex, "begin index");
+        
         return -1;
     }
     
@@ -204,6 +278,8 @@ public class Collections
      * @param filter   筛选器
      * @param <T>      集合元素类型
      * @return 当在找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException iterable 为 null
+     * @throws NullPointerException filter 为 null
      */
     public static <T> int indexIf(Iterable<T> iterable, Predicate<T> filter) {
         return indexIf(iterable, filter, 0);
@@ -217,11 +293,12 @@ public class Collections
      * @param beginIndex 起始索引
      * @param <T>        集合元素类型
      * @return 当在起始索引后找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException list 为 null
      */
     public static <T> int indexOf(List<T> list, T value, int beginIndex) {
-        Preconditions.namedArgumentNonNull(list, "list");
+        Preconditions.objectNonNull(list, "list");
         Preconditions.index(beginIndex, list.size(), "begin index must be bigger than or equals to 0!");
-    
+        
         final int size = list.size();
         for (int i = beginIndex; i < size; i++) {
             final T t = list.get(i);
@@ -240,6 +317,7 @@ public class Collections
      * @param value 目标值
      * @param <T>   集合元素类型
      * @return 当找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException list 为 null
      */
     public static <T> int indexOf(List<T> list, T value) {
         return indexOf(list, value, 0);
@@ -253,12 +331,14 @@ public class Collections
      * @param beginIndex 起始索引
      * @param <T>        集合元素类型
      * @return 当在起始索引后找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException list 为 null
+     * @throws NullPointerException filter 为 null
      */
     public static <T> int indexIf(List<T> list, Predicate<T> filter, int beginIndex) {
-        Preconditions.namedArgumentNonNull(list, "list");
-        Preconditions.namedArgumentNonNull(filter, "filter");
+        Preconditions.objectNonNull(list, "list");
+        Preconditions.objectNonNull(filter, "filter");
         Preconditions.index(beginIndex, list.size(), "begin index must be bigger than or equals to 0!");
-    
+        
         final int size = list.size();
         for (int i = beginIndex; i < size; i++) {
             final T t = list.get(i);
@@ -277,6 +357,8 @@ public class Collections
      * @param filter 筛选器
      * @param <T>    集合元素类型
      * @return 当找到目标值后返回其索引，否则返回 -1
+     * @throws NullPointerException list 为 null
+     * @throws NullPointerException filter 为 null
      */
     public static <T> int indexIf(List<T> list, Predicate<T> filter) {
         return indexIf(list, filter, 0);
@@ -286,17 +368,349 @@ public class Collections
      * 在集合中添加一个新的元素
      *
      * @param collection 集合
-     * @param value 元素
-     * @param <T> 元素类型
+     * @param value      元素
+     * @param <T>        元素类型
      * @return 如果集合本包含该元素，返回 false，否则添加并返回 true
+     * @throws NullPointerException collection 为 null
      */
-    public static <T> boolean addDistinctly(Collection<T> collection, T value) {
-        Preconditions.namedArgumentNonNull(collection, "collection");
-    
+    public static <T> boolean addIfNotContains(Collection<T> collection, T value) {
+        Preconditions.objectNonNull(collection, "collection");
+        
         if (collection.contains(value)) {
             return false;
         } else {
             return collection.add(value);
         }
+    }
+    
+    /**
+     * 在集合中添加一些新的元素
+     *
+     * @param collection 集合
+     * @param iterable   迭代器
+     * @param <T>        元素类型
+     * @return 如果集合本包含该元素，返回 false，否则添加并返回 true
+     * @throws NullPointerException collection 为 null
+     * @throws NullPointerException iterable 为 null
+     */
+    public static <T> boolean addAllIfNotContains(Collection<T> collection, Iterable<T> iterable) {
+        Preconditions.objectNonNull(collection, "collection");
+        Preconditions.objectNonNull(iterable, "iterable");
+        
+        boolean added = false;
+        for (T t : iterable) {
+            if (addIfNotContains(collection, t)) {
+                added = true;
+            }
+        }
+        
+        return added;
+    }
+    
+    /**
+     * 寻找集合中第一个满足要求的对象
+     *
+     * @param iterable     集合
+     * @param filter       筛选器
+     * @param defaultValue 默认值
+     * @param <T>          集合元素类型
+     * @return 当在集合中找到满足筛选器的元素时返回元素，否则返回默认值
+     * @throws NullPointerException iterable 为 null
+     * @throws NullPointerException filter 为 null
+     */
+    public static <T> T firstIf(Iterable<T> iterable, Predicate<T> filter, T defaultValue) {
+        Preconditions.objectNonNull(iterable, "iterable");
+        Preconditions.objectNonNull(filter, "filter");
+        
+        for (T t : iterable) {
+            if (filter.test(t)) {
+                return t;
+            }
+        }
+        
+        return defaultValue;
+    }
+    
+    /**
+     * 寻找集合中第一个满足要求的对象
+     *
+     * @param iterable 集合
+     * @param filter   筛选器
+     * @param <T>      集合元素类型
+     * @return 当在集合中找到满足筛选器的元素时返回元素，否则返回 null
+     * @throws NullPointerException iterable 为 null
+     * @throws NullPointerException filter 为 null
+     */
+    public static <T> T firstIf(Iterable<T> iterable, Predicate<T> filter) {
+        return firstIf(iterable, filter, null);
+    }
+    
+    /**
+     * 在列表中从后往前查找第一个满足要求的对象
+     *
+     * @param list         列表
+     * @param filter       筛选器
+     * @param beginIndex   最早找到哪个元素
+     * @param defaultValue 默认值
+     * @param <T>          列表元素类型
+     * @return 当在列表中从后往前找到满足筛选器的元素时返回元素，否则返回默认值
+     * @throws NullPointerException list 为 null
+     * @throws NullPointerException filter 为 null
+     */
+    public static <T> T lastOf(List<T> list, Predicate<T> filter, int beginIndex, T defaultValue) {
+        Preconditions.objectNonNull(list, "list");
+        Preconditions.objectNonNull(filter, "filter");
+        Preconditions.objectPosition(beginIndex, list.size(), "begin");
+        
+        final int size = list.size();
+        for (int i = size - 1; i >= beginIndex; i--) {
+            final T t = list.get(i);
+            if (filter.test(t)) {
+                return t;
+            }
+        }
+        
+        return defaultValue;
+    }
+    
+    /**
+     * 在列表中从后往前查找第一个满足要求的对象
+     *
+     * @param list       列表
+     * @param filter     筛选器
+     * @param beginIndex 最早找到哪个元素
+     * @param <T>        列表元素类型
+     * @return 当在列表中从后往前找到满足筛选器的元素时返回元素，否则返回 null
+     * @throws NullPointerException list 为 null
+     * @throws NullPointerException filter 为 null
+     */
+    public static <T> T lastOf(List<T> list, Predicate<T> filter, int beginIndex) {
+        return lastOf(list, filter, beginIndex, null);
+    }
+    
+    /**
+     * 在列表中从后往前查找第一个满足要求的对象
+     *
+     * @param list   列表
+     * @param filter 筛选器
+     * @param <T>    列表元素类型
+     * @return 当在列表中从后往前找到满足筛选器的元素时返回元素，否则返回 null
+     * @throws NullPointerException list 为 null
+     * @throws NullPointerException filter 为 null
+     */
+    public static <T> T lastOf(List<T> list, Predicate<T> filter) {
+        return lastOf(list, filter, 0, null);
+    }
+    
+    /**
+     * 检查集合中是否有满足某条件的元素
+     *
+     * @param collection 集合
+     * @param filter     筛选器
+     * @param <T>        集合元素类型
+     * @return 集合中是否有满足该条件的元素
+     * @throws NullPointerException collection 为 null
+     * @throws NullPointerException filter 为 null
+     */
+    public static <T> boolean containsIf(Collection<T> collection, Predicate<T> filter) {
+        Preconditions.objectNonNull(collection, "collection");
+        Preconditions.objectNonNull(filter, "filter");
+        
+        for (T t : collection) {
+            if (filter.test(t)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 将集合元素转化为字符串
+     *
+     * @param iterable   集合
+     * @param translator 转化器
+     * @param delimiter  分隔符
+     * @param <T>        集合元素类型
+     * @return 代表集合元素的字符串或空串 ""
+     * @throws NullPointerException iterable 为 null
+     * @throws NullPointerException translator 为 null
+     * @throws NullPointerException delimiter 为 null
+     */
+    public static <T> String joinToString(Iterable<T> iterable, Function<T, String> translator, String delimiter) {
+        Preconditions.objectNonNull(iterable, "iterable");
+        Preconditions.objectNonNull(translator, "translator");
+        Preconditions.objectNonNull(delimiter, "delimiter");
+        
+        return Joiner.builder()
+            .delimiter(delimiter)
+            .build()
+            .plusAll(iterable, translator)
+            .join();
+    }
+    
+    /**
+     * 将集合元素转化为字符串
+     *
+     * @param iterable   集合
+     * @param translator 转化器
+     * @param <T>        集合元素类型
+     * @return 代表集合元素的字符串或空串 ""
+     * @throws NullPointerException iterable 为 null
+     * @throws NullPointerException translator 为 null
+     */
+    public static <T> String joinToString(Iterable<T> iterable, Function<T, String> translator) {
+        return joinToString(iterable, translator, ", ");
+    }
+    
+    /**
+     * 将集合元素转化为字符串
+     *
+     * @param iterable  集合
+     * @param delimiter 分隔符
+     * @param <T>       集合元素类型
+     * @return 代表集合元素的字符串或空串 ""
+     * @throws NullPointerException iterable 为 null
+     * @throws NullPointerException delimiter 为 null
+     */
+    public static <T> String joinToString(Iterable<T> iterable, String delimiter) {
+        return joinToString(iterable, java.util.Objects::toString, delimiter);
+    }
+    
+    /**
+     * 将集合元素转化为字符串
+     *
+     * @param iterable 集合
+     * @param <T>      集合元素类型
+     * @return 代表集合元素的字符串或空串 ""
+     * @throws NullPointerException iterable 为 null
+     */
+    public static <T> String joinToString(Iterable<T> iterable) {
+        return joinToString(iterable, java.util.Objects::toString, ", ");
+    }
+    
+    /**
+     * 将列表元素的一部分转化为字符串
+     *
+     * @param list       列表
+     * @param translator 转化器
+     * @param begin      区间起始
+     * @param end        区间终止
+     * @param delimiter  分隔符
+     * @param <T>        集合元素类型
+     * @return 代表列表元素的字符串或空串 ""
+     * @throws NullPointerException     list 为 null
+     * @throws NullPointerException     translator 为 null
+     * @throws NullPointerException     delimiter 为 null
+     * @throws IllegalArgumentException 区间不合法
+     */
+    public static <T> String joinToString(List<T> list, Function<T, String> translator, int begin, int end, String delimiter) {
+        Preconditions.objectNonNull(list, "list");
+        Preconditions.objectNonNull(translator, "translator");
+        Preconditions.objectNonNull(delimiter, "delimiter");
+        Preconditions.objectNonNull(delimiter, "delimiter");
+        Preconditions.objectRange(begin, end, 0, list.size(), "joining");
+    
+        if (end == begin) {
+            return "";
+        }
+        if (end == begin + 1) {
+            return translator.apply(list.get(begin));
+        }
+        final StringBuilder stringBuilder = new StringBuilder(translator.apply(list.get(begin)));
+        for (int i = begin + 1; i < end; i++) {
+            stringBuilder.append(delimiter).append(translator.apply(list.get(i)));
+        }
+        return stringBuilder.toString();
+    }
+    
+    /**
+     * 将列表元素的一部分转化为字符串
+     *
+     * @param list       列表
+     * @param translator 转化器
+     * @param begin      区间起始
+     * @param delimiter  分隔符
+     * @param <T>        集合元素类型
+     * @return 代表列表元素的字符串或空串 ""
+     * @throws NullPointerException     list 为 null
+     * @throws NullPointerException     translator 为 null
+     * @throws NullPointerException     delimiter 为 null
+     * @throws IllegalArgumentException 区间不合法
+     */
+    public static <T> String joinToString(List<T> list, Function<T, String> translator, int begin, String delimiter) {
+        return joinToString(list, translator, begin, list.size(), delimiter);
+    }
+    
+    /**
+     * 将列表元素的一部分转化为字符串
+     *
+     * @param list      列表
+     * @param begin     区间起始
+     * @param end       区间终止
+     * @param delimiter 分隔符
+     * @param <T>       集合元素类型
+     * @return 代表列表元素的字符串或空串 ""
+     * @throws NullPointerException     list 为 null
+     * @throws NullPointerException     delimiter 为 null
+     * @throws IllegalArgumentException 区间不合法
+     */
+    public static <T> String joinToString(List<T> list, int begin, int end, String delimiter) {
+        return joinToString(list, java.util.Objects::toString, begin, end, delimiter);
+    }
+    
+    /**
+     * 将列表元素的一部分转化为字符串
+     *
+     * @param list      列表
+     * @param begin     区间起始
+     * @param delimiter 分隔符
+     * @param <T>       集合元素类型
+     * @return 代表列表元素的字符串或空串 ""
+     * @throws NullPointerException     list 为 null
+     * @throws NullPointerException     delimiter 为 null
+     * @throws IllegalArgumentException 区间不合法
+     */
+    public static <T> String joinToString(List<T> list, int begin, String delimiter) {
+        return joinToString(list, java.util.Objects::toString, begin, list.size(), delimiter);
+    }
+    
+    /**
+     * 判断两个集合是否相交
+     *
+     * @param c1 集合 1
+     * @param c2 集合 2
+     * @return 集合是否有交集
+     * @throws NullPointerException c1 为 null
+     * @throws NullPointerException c2 为 null
+     */
+    public static boolean isIntersected(Collection<?> c1, Collection<?> c2) {
+        return !intersect(c1, c2).isEmpty();
+    }
+    
+    /**
+     * 求两个集合的交集
+     *
+     * @param c1 集合 1
+     * @param c2 集合 2
+     * @return 集合的交集
+     * @throws NullPointerException c1 为 null
+     * @throws NullPointerException c2 为 null
+     */
+    @SuppressWarnings("all")
+    public static Set<?> intersect(Collection<?> c1, Collection<?> c2) {
+        Preconditions.objectNonNull(c1, "collection");
+        Preconditions.objectNonNull(c2, "collection");
+        
+        final boolean c1Empty = c1.isEmpty();
+        final boolean c2Empty = c2.isEmpty();
+        
+        if (c1Empty || c2Empty) {
+            return java.util.Collections.emptySet();
+        }
+        
+        final Set<?> set = new HashSet<>(c1);
+        set.retainAll(c2);
+        return unmodifiableSet(set);
     }
 }
