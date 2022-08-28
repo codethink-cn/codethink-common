@@ -379,7 +379,7 @@ public class ChineseNumbers {
      */
     public static int chineseToInt(String number, int defaultValue) {
         chineseToNumber(number);
-        if (decimal.compareTo(BigDecimal.valueOf(0)) < 0)
+        if (decimal.compareTo(BigDecimal.valueOf(0)) < 0) {
             return decimal.compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) < 0 ? defaultValue : decimal.intValue();
         } else {
             return decimal.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) > 0 ? defaultValue : decimal.intValue();
@@ -418,7 +418,6 @@ public class ChineseNumbers {
             decimal = new BigDecimal(number);
             return decimal;
         } catch (NumberFormatException ignored) {
-
         }
 
         List<String> unit = new ArrayList<>();

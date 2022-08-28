@@ -339,6 +339,7 @@ public enum NumberUnit {
     private static final BigDecimal C3 = C2.multiply(C2);           // 万
     private static final BigDecimal C4 = C3.multiply(C2);           // 亿
     private static final BigDecimal C5 = C4.multiply(C2);           // 兆
+    
 /*
     private static final BigDecimal C6 = C5.multiply(C3);           // 京
     private static final BigDecimal C7 = C6.multiply(C3);           // 垓
