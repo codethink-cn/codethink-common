@@ -1,19 +1,18 @@
 package cn.codethink.common.util;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * 字符串工具类
  *
  * @author Chuanwise
  */
+@SuppressWarnings("all")
 public class Strings {
-    
-    private Strings() {
-        Exceptions.throwUtilClassInitializeException(Strings.class);
-    }
-    
+
+    static final Pattern BLANK = Pattern.compile("\\s+");
+
     /**
      * 判断字符串是否为空
      *
@@ -33,7 +32,7 @@ public class Strings {
     public static boolean nonEmpty(String string) {
         return !isEmpty(string);
     }
-    
+
     /**
      * 判断字符串是否为空白
      *
@@ -41,13 +40,10 @@ public class Strings {
      * @return 当字符串为空白，即全为 ' ' 时返回 true
      */
     public static boolean isBlank(String string) {
-        Preconditions.objectNonEmpty(string, "string");
-        
-        char[] chars = string.toCharArray();
-        for (char ch : chars) {
-            if (ch != ' ') {
-                return false;
-            }
+        if (!Objects.isNull(string)) {
+            return BLANK.matcher(string).matches();
+        } else {
+            return false;
         }
         return true;
     }
@@ -58,11 +54,10 @@ public class Strings {
      * @param string 字符串
      * @param count 重复次数
      * @return 重复后的字符串
-     * @throws NullPointerException string 为 null
-     * @throws IllegalArgumentException count < 0
+     * @throws IllegalArgumentException string 为 null 或 count < 0
      */
     public static String repeat(String string, int count) {
-        Preconditions.objectNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(string, "string");
         Preconditions.argument(count >= 0, "count must be bigger than or equals to 0!");
         
         if (count == 0 || string.length() == 0) {
@@ -75,66 +70,7 @@ public class Strings {
         }
         return stringBuilder.toString();
     }
-    
-    /**
-     * 计算字符串的宽度
-     *
-     * @param string 字符串
-     * @param halfWidth 半角字符宽度
-     * @param fullWidth 全角字符宽度
-     * @return 字符串的宽度
-     */
-    public static int width(String string, int halfWidth, int fullWidth) {
-        Preconditions.argument(halfWidth > 0, "the width of half width char must be bigger than 0!");
-        Preconditions.argument(fullWidth > 0, "the width of full width char must be bigger than 0!");
-        
-        int width = 0;
-        
-        final int length = string.length();
-        for (int i = 0; i < length; i++) {
-            final char ch = string.charAt(i);
-            if (Characters.isHalfWidth(ch)) {
-                width += halfWidth;
-            } else {
-                width += fullWidth;
-            }
-        }
-        
-        return width;
-    }
-    
-    /**
-     * 计算字符串的宽度。半角字符算 1 宽度，全角字符算 2 宽度
-     *
-     * @param string 字符串
-     * @return 字符串的宽度
-     */
-    public static int width(String string) {
-        return width(string, 1, 2);
-    }
-    
-    /**
-     * 将一个字符重复若干次
-     *
-     * @param ch 字符
-     * @param count 重复次数
-     * @return 重复后的字符串
-     * @throws IllegalArgumentException count < 0
-     */
-    public static String repeat(char ch, int count) {
-        Preconditions.argument(count >= 0, "count must be bigger than or equals to 0!");
-        
-        if (count == 0) {
-            return "";
-        }
-        
-        final StringBuilder stringBuilder = new StringBuilder(count);
-        for (int i = 0; i < count; i++) {
-            stringBuilder.append(ch);
-        }
-        return stringBuilder.toString();
-    }
-    
+
     /**
      * 计算 2 个字符串的最大公共子序列长度
      *
@@ -143,9 +79,9 @@ public class Strings {
      * @return 最大公共子序列长度
      */
     public static int maxLongestCommonSubsequenceLength(String str1, String str2) {
-        Preconditions.objectNonNull(str1, "string");
-        Preconditions.objectNonNull(str2, "string");
-        
+        Preconditions.namedArgumentNonNull(str1, "string");
+        Preconditions.namedArgumentNonNull(str2, "string");
+
         int[][] dp = new int[2][str2.length() + 1];
         int maxLength = 0;
         for (int i = 1; i <= str1.length(); i++) {
@@ -155,7 +91,7 @@ public class Strings {
                 } else {
                     dp[i % 2][j] = Math.max(dp[(i - 1) % 2][j], dp[i % 2][j - 1]);
                 }
-                
+
                 maxLength = Math.max(maxLength, dp[i % 2][j]);
             }
         }
@@ -172,10 +108,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfIncludedCharacter(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(charSequence, "charSequence");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
             characters.add(charSequence.charAt(i));
@@ -193,10 +129,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfIncludedCharacter(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(characters, "characters");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         for (int i = beginIndex; i < string.length(); i++) {
             final char ch = string.charAt(i);
             if (characters.contains(ch)) {
@@ -263,10 +199,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfIncludedCharacter(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(charSequence, "charSequence");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
             characters.add(charSequence.charAt(i));
@@ -284,10 +220,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfIncludedCharacter(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(characters, "characters");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         for (int i = string.length() - 1; i >= beginIndex; i--) {
             final char ch = string.charAt(i);
             if (characters.contains(ch)) {
@@ -353,10 +289,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfExcluded(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(charSequence, "charSequence");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
             characters.add(charSequence.charAt(i));
@@ -374,10 +310,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfExcluded(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(characters, "characters");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         for (int i = beginIndex; i < string.length(); i++) {
             final char ch = string.charAt(i);
             if (characters.contains(ch)) {
@@ -444,10 +380,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfExcluded(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(charSequence, "charSequence");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
             characters.add(charSequence.charAt(i));
@@ -465,10 +401,10 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfExcluded(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
-        
+        Preconditions.namedArgumentNonNull(string, "string");
+        Preconditions.namedArgumentNonNull(characters, "characters");
+        Preconditions.namedPosition(beginIndex, string.length(), "begin");
+    
         for (int i = string.length() - 1; i >= beginIndex; i--) {
             final char ch = string.charAt(i);
             if (!characters.contains(ch)) {
@@ -522,114 +458,5 @@ public class Strings {
      */
     public static int lastIndexOfExcluded(CharSequence string, CharSequence charSequence) {
         return lastIndexOfExcluded(string, charSequence, 0, -1);
-    }
-    
-    /**
-     * 转义字符串中的 \t \n \r \f 等为 \t \n \r \f
-     *
-     * @param string 转义前的字符串
-     * @return 转义后的字符串
-     */
-    public static String escape(String string) {
-        Preconditions.objectNonNull(string, "string");
-        
-        if (string.isEmpty()) {
-            return "";
-        }
-        
-        final int length = string.length();
-        final StringBuilder stringBuilder = new StringBuilder(length);
-        
-        for (int i = 0; i < length; i++) {
-            final char ch = string.charAt(i);
-            
-            switch (ch) {
-                case '\b':
-                    stringBuilder.append("\\b");
-                    break;
-                case '\f':
-                    stringBuilder.append("\\f");
-                    break;
-                case '\n':
-                    stringBuilder.append("\\n");
-                    break;
-                case '\r':
-                    stringBuilder.append("\\r");
-                    break;
-                case '\t':
-                    stringBuilder.append("\\t");
-                    break;
-                case '\\':
-                    stringBuilder.append("\\\\");
-                    break;
-                case '\"':
-                    stringBuilder.append("\\\"");
-                    break;
-                case '\'':
-                    stringBuilder.append("\\'");
-                    break;
-                default:
-                    stringBuilder.append(ch);
-            }
-        }
-        
-        return stringBuilder.toString();
-    }
-    
-    /**
-     * 反转义字符串中的 \t \n \r \f 等为 \t \n \r \f
-     *
-     * @param string 转义后的字符串
-     * @return 转义前的字符串
-     */
-    public static String unescape(String string) {
-        Preconditions.objectNonNull(string, "string");
-        
-        if (string.isEmpty()) {
-            return "";
-        }
-        
-        final int length = string.length();
-        final StringBuilder stringBuilder = new StringBuilder(length);
-        
-        boolean escaped = false;
-        for (int i = 0; i < length; i++) {
-            final char ch = string.charAt(i);
-            
-            if (escaped) {
-                switch (ch) {
-                    case 'b':
-                        stringBuilder.append("\b");
-                        break;
-                    case 'f':
-                        stringBuilder.append("\f");
-                        break;
-                    case 'n':
-                        stringBuilder.append("\n");
-                        break;
-                    case 'r':
-                        stringBuilder.append("\r");
-                        break;
-                    case 't':
-                        stringBuilder.append("\t");
-                        break;
-                    case '\\':
-                        stringBuilder.append("\\");
-                        break;
-                    default:
-                        stringBuilder.append(ch);
-                }
-                escaped = false;
-                continue;
-            }
-            if (ch == '\\') {
-                escaped = true;
-                continue;
-            }
-            
-            stringBuilder.append(ch);
-        }
-        
-        return stringBuilder.toString();
     }
 }
