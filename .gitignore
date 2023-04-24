@@ -113,7 +113,6 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
-### chuanwise's gradle setting
+### CodeThink template
 
-# deploy script
-/publish.gradle
+publish.gradle
