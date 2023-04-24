@@ -1,7 +1,7 @@
 # CodeThink Common
 
-[![Latest release](https://img.shields.io/github/release/codethink-cn/xiaoming.svg)](https://github.com/codethink-cn/xiaoming/releases/latest)
-[![Build by Gradle](https://img.shields.io/badge/Build%20by-Gradle-06A0CE?logo=Gradle&labelColor=02303A)](https://gradle.org/?from=xiaoming)
+[![Latest release](https://img.shields.io/github/release/codethink-cn/codethink-common.svg)](https://github.com/codethink-cn/codethink-common/releases/latest)
+[![Build by Gradle](https://img.shields.io/badge/Build%20by-Gradle-06A0CE?logo=Gradle&labelColor=02303A)](https://gradle.org/?from=codethink-common)
 
 `CodeThink Common` 是 `CodeThink Technologies` 开发的工具库，包含常用的接口和工具类。
 
