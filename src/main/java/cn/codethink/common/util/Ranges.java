@@ -1,14 +1,16 @@
 package cn.codethink.common.util;
 
+import com.google.common.base.Preconditions;
+
 /**
- * 范围相关工具
+ * 范围工具
  *
  * @author Chuanwise
  */
+@SuppressWarnings("unused")
 public class Ranges {
-    
     private Ranges() {
-        Exceptions.throwUtilClassInitializeException(Ranges.class);
+        Throwables.throwNoInstancesException(Ranges.class);
     }
     
     /**
@@ -21,7 +23,7 @@ public class Ranges {
      * @throws IllegalArgumentException min > max 时
      */
     public static boolean in(int value, int min, int max) {
-        Preconditions.argument(min <= max, "illegal range: [ " + min + ", " + max + " )");
+        Preconditions.checkArgument(min <= max, "Illegal range: [ " + min + ", " + max + " )");
         
         return value >= min && value < max;
     }
@@ -46,14 +48,11 @@ public class Ranges {
      * @param min   最小值
      * @param max   最大值
      * @return 给定值是否在 [min, max) 的区间内
-     * @throws NullPointerException value 为 null
-     * @throws NullPointerException min 为 null
-     * @throws NullPointerException max 为 null
      */
     public static <U, T extends Comparable<U>> boolean in(U value, T min, T max) {
-        Preconditions.objectNonNull(value, "value");
-        Preconditions.objectNonNull(value, "min");
-        Preconditions.objectNonNull(value, "max");
+        Preconditions.checkNotNull(value, "Value is null!");
+        Preconditions.checkNotNull(min, "Min is null!");
+        Preconditions.checkNotNull(max, "Max is null!");
     
         return min.compareTo(value) < 0 && max.compareTo(value) >= 0;
     }
@@ -65,9 +64,6 @@ public class Ranges {
      * @param bound1 边界 1
      * @param bound2 边界 2
      * @return 给定值是否在 [ min{bound1, bound2}, max{bound1, bound2} ) 的范围内
-     * @throws NullPointerException value 为 null
-     * @throws NullPointerException bound1 为 null
-     * @throws NullPointerException bound2 为 null
      */
     public static <U, T extends Comparable<U>> boolean between(U value, T bound1, T bound2) {
         return (bound1.compareTo(value) < 0 && bound2.compareTo(value) >= 0)

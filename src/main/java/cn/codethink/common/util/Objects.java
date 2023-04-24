@@ -1,83 +1,29 @@
 package cn.codethink.common.util;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
+import com.google.common.base.Preconditions;
+
 import java.util.concurrent.TimeUnit;
 
 /**
- * 类基础 API
+ * 对象工具
  *
  * @author Chuanwise
  */
+@SuppressWarnings("unused")
 public class Objects {
-    
-    /**
-     * 判断对象是否为 null
-     *
-     * @param object 对象
-     * @return 对象是否为 null
-     */
-    public static boolean isNull(Object object) {
-        return object == null;
-    }
-    
-    /**
-     * 判断对象是否非 null
-     *
-     * @param object 对象
-     * @return 对象是否非 null
-     */
-    public static boolean nonNull(Object object) {
-        return object != null;
-    }
-    
-    /**
-     * 判断对象是否为空
-     *
-     * @param object 对象
-     * @return 当对象是 null，返回 true。
-     * 当对象是各类数组，返回 {@link Arrays#isEmpty(Object[])}。
-     * 否则返回 false
-     */
-    public static boolean isEmpty(Object object) {
-        if (isNull(object)) {
-            return true;
-        }
-    
-        if (object instanceof Collection) {
-            final Collection<?> objects = (Collection<?>) object;
-            return Collections.isEmpty(objects);
-        }
-    
-        final Class<?> componentType = object.getClass().getComponentType();
-        if (Objects.nonNull(componentType)) {
-            return Array.getLength(object) == 0;
-        }
-    
-        return false;
-    }
-    
-    /**
-     * 判断对象是否相等
-     *
-     * @param object1 对象 1
-     * @param object2 对象 2
-     * @return 对象 1 和 2 是否相等
-     */
-    public static boolean equals(Object object1, Object object2) {
-        return java.util.Objects.equals(object1, object2);
+    private Objects() {
+        Throwables.throwNoInstancesException(Objects.class);
     }
     
     /**
      * 在某个对象上同步
      *
      * @param object 同步对象
-     * @throws NullPointerException object 为 null
      * @throws InterruptedException 中断异常
      */
     @SuppressWarnings("all")
     public static void await(Object object) throws InterruptedException {
-        Preconditions.objectNonNull(object, "object");
+        Preconditions.checkNotNull(object, "Object is null!");
         
         synchronized (object) {
             object.wait();
@@ -90,14 +36,12 @@ public class Objects {
      * @param object  同步对象
      * @param timeout 超时时间戳
      * @return 是否有其他线程在该对象上 notify
-     * @throws InterruptedException     中断异常
-     * @throws NullPointerException     object 为 null
-     * @throws IllegalArgumentException timeout <= 0
+     * @throws InterruptedException 中断异常
      */
     @SuppressWarnings("all")
     public static boolean await(Object object, long timeout) throws InterruptedException {
-        Preconditions.objectNonNull(object, "object");
-        Preconditions.argument(timeout >= 0, "time millis must be bigger than or equals to 0!");
+        Preconditions.checkNotNull(object, "Object is null!");
+        Preconditions.checkArgument(timeout >= 0, "Timeout must be greater than or equals to 0!");
         
         if (timeout == 0) {
             await(object);
@@ -120,15 +64,12 @@ public class Objects {
      * @param timeout  超时时长
      * @param timeUnit 时间单位
      * @return 是否有其他线程在该对象上 notify
-     * @throws InterruptedException     中断异常
-     * @throws NullPointerException     object 为 null
-     * @throws NullPointerException     timeUnit 为 null
-     * @throws IllegalArgumentException timeout <= 0
+     * @throws InterruptedException 中断异常
      */
     public static boolean await(Object object, long timeout, TimeUnit timeUnit) throws InterruptedException {
-        Preconditions.objectNonNull(object, "object");
-        Preconditions.argument(timeout >= 0, "duration must be bigger than or equals to 0!");
-        Preconditions.objectNonNull(timeUnit, "time unit");
+        Preconditions.checkNotNull(object, "Object is null!");
+        Preconditions.checkArgument(timeout >= 0, "Duration must be greater than or equals to 0!");
+        Preconditions.checkNotNull(timeUnit, "Time unit is null!");
         
         return await(object, timeUnit.toMillis(timeout));
     }
@@ -137,11 +78,10 @@ public class Objects {
      * 不可打断地在某个对象上同步
      *
      * @param object 同步对象
-     * @throws NullPointerException object 为 null
      */
     @SuppressWarnings("all")
     public static void awaitUninterruptibly(Object object) {
-        Preconditions.objectNonNull(object, "object");
+        Preconditions.checkNotNull(object, "Object is null!");
         
         while (true) {
             try {
@@ -159,14 +99,11 @@ public class Objects {
      * @param timeout  超时时长
      * @param timeUnit 时间单位
      * @return 是否有其他线程在该对象上 notify
-     * @throws NullPointerException     object 为 null
-     * @throws IllegalArgumentException timeout <= 0
-     * @throws NullPointerException     timeUnit 为 null
      */
     public static boolean awaitUninterruptibly(Object object, long timeout, TimeUnit timeUnit) {
-        Preconditions.objectNonNull(object, "object");
-        Preconditions.argument(timeout >= 0, "duration must be bigger than or equals to 0!");
-        Preconditions.objectNonNull(timeUnit, "time unit");
+        Preconditions.checkNotNull(object, "Object is null!");
+        Preconditions.checkArgument(timeout >= 0, "Duration must be greater than or equals to 0!");
+        Preconditions.checkNotNull(timeUnit, "Time unit");
         
         return awaitUninterruptibly(object, timeUnit.toMillis(timeout));
     }
@@ -177,12 +114,10 @@ public class Objects {
      * @param object  同步对象
      * @param timeout 超时时间戳
      * @return 是否有其他线程在该对象上 notify
-     * @throws NullPointerException     object 为 null
-     * @throws IllegalArgumentException timeout <= 0
      */
     public static boolean awaitUninterruptibly(Object object, long timeout) {
-        Preconditions.objectNonNull(object, "object");
-        Preconditions.argument(timeout >= 0, "time millis must be bigger than or equals to 0!");
+        Preconditions.checkNotNull(object, "Object is null!");
+        Preconditions.checkArgument(timeout >= 0, "Timeout must be greater than or equals to 0!");
         
         if (timeout == 0) {
             awaitUninterruptibly(object);
@@ -208,20 +143,17 @@ public class Objects {
     /**
      * 安全地将一个对象转化为某种类型的引用
      *
-     * @param object      对象
+     * @param instance    对象
      * @param targetClass 目标类型
      * @param <T>         目标类型
      * @return 转换成功后的对象，或 null
-     * @throws NullPointerException targetClass 为 null
      */
     @SuppressWarnings("unchecked")
-    public static <T> T safeCast(Object object, Class<T> targetClass) {
-        Preconditions.objectNonNull(targetClass, "target class");
+    public static <T> T safeCast(Object instance, Class<T> targetClass) {
+        Preconditions.checkNotNull(targetClass, "Target class");
         
-        if (Objects.isNull(object)) {
-            return null;
-        } else if (targetClass.isAssignableFrom(object.getClass())) {
-            return (T) object;
+        if (targetClass.isInstance(instance)) {
+            return (T) instance;
         } else {
             return null;
         }

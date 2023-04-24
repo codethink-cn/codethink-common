@@ -4,25 +4,30 @@ plugins {
 }
 
 group 'cn.codethink'
-version '1.0-SNAPSHOT'
+version '2.0.0-SNAPSHOT'
 
 repositories {
     mavenLocal()
-
     mavenCentral()
 }
 
+ext {
+    guavaVersion = '31.1-jre'
+    junitVersion = '5.9.2'
+    publishScriptFile = new File('publish.gradle')
+}
+
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    implementation 'com.google.guava:guava:' + guavaVersion
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
 }
 
 test {
     useJUnitPlatform()
 }
 
-// apply deploy script if file exists
-def publishScriptFile = new File('publish.gradle')
 if (publishScriptFile.isFile()) {
     apply from: publishScriptFile.getAbsolutePath()
 }

@@ -1,5 +1,7 @@
 package cn.codethink.common.util;
 
+import com.google.common.base.Preconditions;
+
 import java.math.BigDecimal;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
@@ -15,6 +17,7 @@ import java.util.regex.Pattern;
  *
  * @author ThymeChen
  */
+@SuppressWarnings("all")
 public class ChineseNumbers {
     private static BigDecimal decimal = new BigDecimal("0");
 
@@ -411,7 +414,7 @@ public class ChineseNumbers {
      * @throws IllegalArgumentException 返回第一个错误的参数
      */
     public static BigDecimal chineseToNumber(String number) {
-        Preconditions.objectNonNull(number, "string");
+        Preconditions.checkNotNull(number, "Number is null!");
 
         decimal = BigDecimal.valueOf(0);
         try {

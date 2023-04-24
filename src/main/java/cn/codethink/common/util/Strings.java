@@ -1,19 +1,24 @@
 package cn.codethink.common.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * 字符串工具类
+ * 字符串工具
  *
  * @author Chuanwise
  */
-@SuppressWarnings("all")
+@SuppressWarnings("unused")
 public class Strings {
-
-    static final Pattern BLANK = Pattern.compile("\\s+");
+    
+    /**
+     * 空字符串正则表达式
+     */
+    private static final Pattern BLANK = Pattern.compile("\\s+");
 
     /**
      * 判断字符串是否为空
@@ -21,18 +26,8 @@ public class Strings {
      * @param string 字符串
      * @return 当字符串为 null 或长度为 0 时返回 true
      */
-    public static boolean isEmpty(String string) {
+    public static boolean isNullOrEmpty(String string) {
         return string == null || string.isEmpty();
-    }
-    
-    /**
-     * 判断字符串是否非空
-     *
-     * @param string 字符串
-     * @return 当字符串不为 null 且长度不为 0 返回 true
-     */
-    public static boolean nonEmpty(String string) {
-        return !isEmpty(string);
     }
 
     /**
@@ -58,8 +53,8 @@ public class Strings {
      * @throws IllegalArgumentException string 为 null 或 count < 0
      */
     public static String repeat(String string, int count) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.argument(count >= 0, "count must be bigger than or equals to 0!");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkArgument(count >= 0, "Count must be greater than or equals to 0!");
         
         if (count == 0 || string.length() == 0) {
             return "";
@@ -80,8 +75,8 @@ public class Strings {
      * @return 最大公共子序列长度
      */
     public static int maxLongestCommonSubsequenceLength(String str1, String str2) {
-        Preconditions.objectNonNull(str1, "string");
-        Preconditions.objectNonNull(str2, "string");
+        Preconditions.checkNotNull(str1, "String is null!");
+        Preconditions.checkNotNull(str2, "String is null!");
 
         int[][] dp = new int[2][str2.length() + 1];
         int maxLength = 0;
@@ -109,9 +104,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfIncludedCharacter(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(charSequence, "Char sequence is null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
@@ -130,9 +125,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfIncludedCharacter(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(characters, "Characters are null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         for (int i = beginIndex; i < string.length(); i++) {
             final char ch = string.charAt(i);
@@ -200,9 +195,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfIncludedCharacter(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(charSequence, "Char sequence is null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
@@ -221,9 +216,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfIncludedCharacter(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(characters, "Characters are null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         for (int i = string.length() - 1; i >= beginIndex; i--) {
             final char ch = string.charAt(i);
@@ -290,9 +285,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfExcluded(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(charSequence, "Char sequence is null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
@@ -311,9 +306,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int indexOfExcluded(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(characters, "Characters are null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         for (int i = beginIndex; i < string.length(); i++) {
             final char ch = string.charAt(i);
@@ -381,9 +376,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfExcluded(CharSequence string, CharSequence charSequence, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(charSequence, "charSequence");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(charSequence, "Char sequence is null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         final Set<Character> characters = new HashSet<>();
         for (int i = 0; i < charSequence.length(); i++) {
@@ -402,9 +397,9 @@ public class Strings {
      * @return 当在目标字符串中起始索引后找到任何一个字符不属于字符集，返回其索引。否则返回默认索引。
      */
     public static int lastIndexOfExcluded(CharSequence string, Set<Character> characters, int beginIndex, int defaultIndex) {
-        Preconditions.objectNonNull(string, "string");
-        Preconditions.objectNonNull(characters, "characters");
-        Preconditions.objectPosition(beginIndex, string.length(), "begin");
+        Preconditions.checkNotNull(string, "String is null!");
+        Preconditions.checkNotNull(characters, "Characters are null!");
+        Preconditions.checkPositionIndex(beginIndex, string.length(), "Begin index");
     
         for (int i = string.length() - 1; i >= beginIndex; i--) {
             final char ch = string.charAt(i);

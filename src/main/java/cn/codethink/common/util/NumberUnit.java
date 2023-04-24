@@ -8,6 +8,7 @@ import java.math.RoundingMode;
  *
  * @author Thyme-Chen
  */
+@SuppressWarnings("unused")
 public enum NumberUnit {
     /**
      * 个位
