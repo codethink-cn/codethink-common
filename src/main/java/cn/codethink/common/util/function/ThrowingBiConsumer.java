@@ -4,7 +4,6 @@ import cn.codethink.common.util.Throwables;
 import com.google.common.base.Preconditions;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * <h1>可抛出异常消费者</h1>
